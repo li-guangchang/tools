@@ -13,7 +13,7 @@ use tools\date\Date;
 class Tools
 {
 
-    protected $container = [];
+    protected array $container = [];
 
     /**
      * 日期工具
