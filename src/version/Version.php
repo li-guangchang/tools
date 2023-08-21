@@ -12,10 +12,10 @@ class Version
      * 检测版本是否的版本要求的数据中
      *
      * @param string $version
-     * @param array  $data
+     * @param array $data
      * @return bool
      */
-    public static function check($version, $data = [])
+    public static function check(string $version, array $data = []): bool
     {
         //版本号以.分隔
         $data = is_array($data) ? $data : [$data];
@@ -56,7 +56,7 @@ class Version
      * @param string $v2
      * @return boolean
      */
-    public static function compare($v1, $v2)
+    public static function compare(string $v1, string $v2): bool
     {
         if ($v2 == "*" || $v1 == $v2) {
             return true;
