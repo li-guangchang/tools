@@ -4,6 +4,7 @@ namespace tools\date;
 
 use DateTime;
 use DateTimeZone;
+use Exception;
 
 /**
  * 日期时间处理类
@@ -26,11 +27,12 @@ class Date
      * <http://php.net/timezones>.
      *
      * @param string $remote timezone that to find the offset of
-     * @param string $local  timezone used as the baseline
-     * @param mixed  $now    UNIX timestamp or date string
+     * @param null $local timezone used as the baseline
+     * @param mixed $now UNIX timestamp or date string
      * @return  integer
+     * @throws Exception
      */
-    public static function offset($remote, $local = null, $now = null)
+    public static function offset(string $remote, $local = null, $now = null): int
     {
         if ($local === null) {
             // Use the default timezone
@@ -47,8 +49,7 @@ class Date
         $time_remote = new DateTime($now, $zone_remote);
         $time_local = new DateTime($now, $zone_local);
         // Find the offset
-        $offset = $zone_remote->getOffset($time_remote) - $zone_local->getOffset($time_local);
-        return $offset;
+        return $zone_remote->getOffset($time_remote) - $zone_local->getOffset($time_local);
     }
 
     /**
@@ -57,14 +58,14 @@ class Date
      * $span = self::span(60, 182, 'minutes,seconds'); // array('minutes' => 2, 'seconds' => 2)
      * $span = self::span(60, 182, 'minutes'); // 2
      *
-     * @param int    $remote timestamp to find the span of
-     * @param int    $local  timestamp to use as the baseline
+     * @param int $remote timestamp to find the span of
+     * @param int|null $local  timestamp to use as the baseline
      * @param string $output formatting string
      * @return  string   when only a single output is requested
      * @return  array    associative list of all outputs requested
      * @from https://github.com/kohana/ohanzee-helpers/blob/master/src/Date.php
      */
-    public static function span($remote, $local = null, $output = 'years,months,weeks,days,hours,minutes,seconds')
+    public static function span(int $remote, int $local = null, string $output = 'years,months,weeks,days,hours,minutes,seconds')
     {
         // Normalize output
         $output = trim(strtolower((string)$output));
@@ -122,7 +123,7 @@ class Date
      *
      * @return    string    格式化的日期字符串
      */
-    public static function human($remote, $local = null)
+    public static function human($remote, $local = null): string
     {
         $time_diff = (is_null($local) || $local ? time() : $local) - $remote;
         $tense = $time_diff < 0 ? 'after' : 'ago';
@@ -146,23 +147,23 @@ class Date
                 break;
             }
         }
-        return __("%d $name%s $tense", $count, ($count > 1 ? 's' : ''));
+        return sprintf("%d $name%s $tense", $count, ($count > 1 ? 's' : ''));
     }
 
     /**
      * 获取一个基于时间偏移的Unix时间戳
      *
      * @param string $type     时间类型，默认为day，可选minute,hour,day,week,month,quarter,year
-     * @param int    $offset   时间偏移量 默认为0，正数表示当前type之后，负数表示当前type之前
+     * @param int $offset   时间偏移量 默认为0，正数表示当前type之后，负数表示当前type之前
      * @param string $position 时间的开始或结束，默认为begin，可选前(begin,start,first,front)，end
-     * @param int    $year     基准年，默认为null，即以当前年为基准
-     * @param int    $month    基准月，默认为null，即以当前月为基准
-     * @param int    $day      基准天，默认为null，即以当前天为基准
-     * @param int    $hour     基准小时，默认为null，即以当前年小时基准
-     * @param int    $minute   基准分钟，默认为null，即以当前分钟为基准
+     * @param int|null $year     基准年，默认为null，即以当前年为基准
+     * @param int|null $month    基准月，默认为null，即以当前月为基准
+     * @param int|null $day      基准天，默认为null，即以当前天为基准
+     * @param int|null $hour     基准小时，默认为null，即以当前年小时基准
+     * @param int|null $minute   基准分钟，默认为null，即以当前分钟为基准
      * @return int 处理后的Unix时间戳
      */
-    public static function unixtime($type = 'day', $offset = 0, $position = 'begin', $year = null, $month = null, $day = null, $hour = null, $minute = null)
+    public static function unixtime(string $type = 'day', int $offset = 0, string $position = 'begin', int $year = null, int $month = null, int $day = null, int $hour = null, int $minute = null)
     {
         $year = is_null($year) ? date('Y') : $year;
         $month = is_null($month) ? date('m') : $month;
@@ -219,7 +220,7 @@ class Date
      * @param int $year
      * @return false|int|string
      */
-    public static function days_in_month($month, $year)
+    public static function days_in_month(int $month, int $year)
     {
         if (function_exists("cal_days_in_month")) {
             return cal_days_in_month(CAL_GREGORIAN, $month, $year);
